@@ -30,15 +30,15 @@ export function BlockRenderer({
             {block.properties?.options?.map((option, index) => (
               <label
                 key={index}
-                className="flex items-center gap-2 cursor-default"
+                className="flex items-center gap-2 cursor-grab"
               >
                 <input
                   type="radio"
                   name={`preview-${block.id}`}
-                  className="w-4 h-4 cursor-default"
+                  className="w-4 h-4 cursor-grab"
                   readOnly
                 />
-                <span className="cursor-default">
+                <span className="cursor-grab">
                   {option || `Option ${index + 1}`}
                 </span>
               </label>
@@ -59,14 +59,14 @@ export function BlockRenderer({
             {block.properties?.options?.map((option, index) => (
               <label
                 key={index}
-                className="flex items-center gap-2 cursor-default"
+                className="flex items-center gap-2 cursor-grab"
               >
                 <input
                   type="checkbox"
-                  className="w-4 h-4 cursor-default"
+                  className="w-4 h-4 cursor-grab"
                   readOnly
                 />
-                <span className="cursor-default">
+                <span className="cursor-grab">
                   {option || `Option ${index + 1}`}
                 </span>
               </label>
@@ -83,7 +83,7 @@ export function BlockRenderer({
           <div className="bg-gray-50 p-3 rounded border mt-3">
             <p className="text-sm text-gray-600 mb-2">Text Answer Preview:</p>
             <textarea
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 cursor-text bg-white"
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 cursor-grab bg-white"
               rows={3}
               placeholder="User will type answer here..."
               readOnly
@@ -106,14 +106,14 @@ export function BlockRenderer({
             {block.properties?.options?.map((option, index) => (
               <label
                 key={index}
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2 cursor-grab"
               >
                 <input
                   type="radio"
                   name={`question-${block.id}`}
-                  className="w-4 h-4 cursor-pointer"
+                  className="w-4 h-4 cursor-grab"
                 />
-                <span className="cursor-pointer">
+                <span className="cursor-grab">
                   {option || `Option ${index + 1}`}
                 </span>
               </label>
@@ -127,10 +127,10 @@ export function BlockRenderer({
             {block.properties?.options?.map((option, index) => (
               <label
                 key={index}
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2 cursor-grab"
               >
-                <input type="checkbox" className="w-4 h-4 cursor-pointer" />
-                <span className="cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 cursor-grab" />
+                <span className="cursor-grab">
                   {option || `Option ${index + 1}`}
                 </span>
               </label>
@@ -141,7 +141,7 @@ export function BlockRenderer({
       case "text":
         return (
           <textarea
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 cursor-text mt-3"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 cursor-grab mt-3"
             rows={4}
             placeholder="Type your answer here..."
           />
@@ -169,7 +169,7 @@ export function BlockRenderer({
           />
         ) : (
           <h2
-            className="text-2xl font-bold cursor-default"
+            className="text-2xl font-bold cursor-grab"
             onClick={handleContentClick}
           >
             {block.content || "Heading"}
@@ -185,13 +185,13 @@ export function BlockRenderer({
                   value={block.content}
                   onChange={(e) => handleContentChange(e.target.value)}
                   placeholder="Enter question..."
-                  className="text-lg font-medium mb-3"
+                  className="text-lg font-medium mb-3 cursor-grab"
                 />
                 {renderQuestionPreview()}
               </>
             ) : (
               <>
-                <h3 className="text-lg font-medium cursor-default">
+                <h3 className="text-lg font-medium cursor-grab">
                   {block.content || "Question"}
                 </h3>
                 {renderQuestionView()}
@@ -238,7 +238,7 @@ export function BlockRenderer({
           />
         ) : (
           <p
-            className="text-sm text-gray-600 cursor-default"
+            className="text-sm text-gray-600 cursor-grab"
             onClick={handleContentClick}
           >
             {block.content || "Footer text"}
@@ -251,7 +251,7 @@ export function BlockRenderer({
   };
 
   return (
-    <div className={isEditing ? "cursor-default" : "cursor-move"}>
+    <div className={"cursor-grab"}>
       {renderContent()}
     </div>
   );
