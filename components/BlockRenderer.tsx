@@ -1,86 +1,249 @@
 import { QuizBlock } from "@/types/quiz";
+import { Button } from "./shared/Button";
+import { Input } from "./shared/Input";
 
 interface BlockRendererProps {
   block: QuizBlock;
-  isSelected: boolean;
+  isEditing: boolean;
   onUpdate?: (updates: Partial<QuizBlock>) => void;
 }
 
-export function BlockRenderer({ block, isSelected, onUpdate }: BlockRendererProps) {
-  const renderContent = () => {
-    switch (block.type) {
-      case 'heading':
-        return isSelected ? (
-          <input
-            type="text"
-            value={block.content}
-            onChange={(e) => onUpdate?.({ content: e.target.value })}
-            placeholder="Enter heading..."
-            className="text-2xl font-bold w-full border-none outline-none bg-transparent"
-          />
-        ) : (
-          <h2 className="text-2xl font-bold">{block.content || 'Heading'}</h2>
-        );
+export function BlockRenderer({
+  block,
+  isEditing,
+  onUpdate,
+}: BlockRendererProps) {
+  const handleContentClick = (e: React.MouseEvent) => {
+    if (!isEditing && window.innerWidth >= 768) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
-      case 'question':
+  const renderQuestionPreview = () => {
+    const questionType = block.properties?.questionType || "single";
+
+    switch (questionType) {
+      case "single":
         return (
-          <div className="space-y-3">
-            {isSelected ? (
-              <input
-                type="text"
-                value={block.content}
-                onChange={(e) => onUpdate?.({ content: e.target.value })}
-                placeholder="Enter question..."
-                className="text-lg font-medium w-full border-b border-gray-300 outline-none bg-transparent"
-              />
-            ) : (
-              <h3 className="text-lg font-medium">{block.content || 'Question'}</h3>
-            )}
-            
-            {block.properties?.questionType === 'single' && (
-              <div className="space-y-2">
-                {block.properties.options?.map((option, index) => (
-                  <label key={index} className="flex items-center gap-2">
-                    <input type="radio" name={`question-${block.id}`} />
-                    {isSelected ? (
-                      <input
-                        type="text"
-                        value={option}
-                        onChange={(e) => {
-                          const newOptions = [...(block.properties?.options || [])];
-                          newOptions[index] = e.target.value;
-                          onUpdate?.({ properties: { ...block.properties, options: newOptions } });
-                        }}
-                        className="flex-1 border-b border-gray-300 outline-none"
-                      />
-                    ) : (
-                      <span>{option || `Option ${index + 1}`}</span>
-                    )}
-                  </label>
-                ))}
-              </div>
+          <div className="space-y-2 bg-gray-50 p-3 rounded border mt-3">
+            <p className="text-sm text-gray-600 mb-2">Single Choice Preview:</p>
+            {block.properties?.options?.map((option, index) => (
+              <label
+                key={index}
+                className="flex items-center gap-2 cursor-default"
+              >
+                <input
+                  type="radio"
+                  name={`preview-${block.id}`}
+                  className="w-4 h-4 cursor-default"
+                  readOnly
+                />
+                <span className="cursor-default">
+                  {option || `Option ${index + 1}`}
+                </span>
+              </label>
+            ))}
+            {(!block.properties?.options ||
+              block.properties.options.length === 0) && (
+              <p className="text-sm text-gray-400">No options added yet</p>
             )}
           </div>
         );
 
-      case 'button':
+      case "multi":
         return (
-          <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
-            {block.content || 'Next'}
-          </button>
+          <div className="space-y-2 bg-gray-50 p-3 rounded border mt-3">
+            <p className="text-sm text-gray-600 mb-2">
+              Multiple Choice Preview:
+            </p>
+            {block.properties?.options?.map((option, index) => (
+              <label
+                key={index}
+                className="flex items-center gap-2 cursor-default"
+              >
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 cursor-default"
+                  readOnly
+                />
+                <span className="cursor-default">
+                  {option || `Option ${index + 1}`}
+                </span>
+              </label>
+            ))}
+            {(!block.properties?.options ||
+              block.properties.options.length === 0) && (
+              <p className="text-sm text-gray-400">No options added yet</p>
+            )}
+          </div>
         );
 
-      case 'footer':
-        return isSelected ? (
-          <input
-            type="text"
+      case "text":
+        return (
+          <div className="bg-gray-50 p-3 rounded border mt-3">
+            <p className="text-sm text-gray-600 mb-2">Text Answer Preview:</p>
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 cursor-text bg-white"
+              rows={3}
+              placeholder="User will type answer here..."
+              readOnly
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const renderQuestionView = () => {
+    const questionType = block.properties?.questionType || "single";
+
+    switch (questionType) {
+      case "single":
+        return (
+          <div className="space-y-2 mt-3">
+            {block.properties?.options?.map((option, index) => (
+              <label
+                key={index}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name={`question-${block.id}`}
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span className="cursor-pointer">
+                  {option || `Option ${index + 1}`}
+                </span>
+              </label>
+            ))}
+          </div>
+        );
+
+      case "multi":
+        return (
+          <div className="space-y-2 mt-3">
+            {block.properties?.options?.map((option, index) => (
+              <label
+                key={index}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <input type="checkbox" className="w-4 h-4 cursor-pointer" />
+                <span className="cursor-pointer">
+                  {option || `Option ${index + 1}`}
+                </span>
+              </label>
+            ))}
+          </div>
+        );
+
+      case "text":
+        return (
+          <textarea
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 cursor-text mt-3"
+            rows={4}
+            placeholder="Type your answer here..."
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const handleContentChange = (content: string) => {
+    onUpdate?.({ content });
+  };
+
+  const renderContent = () => {
+    switch (block.type) {
+      case "heading":
+        return isEditing ? (
+          <Input
             value={block.content}
-            onChange={(e) => onUpdate?.({ content: e.target.value })}
-            placeholder="Footer text..."
-            className="text-sm text-gray-600 w-full border-none outline-none bg-transparent"
+            onChange={(e) => handleContentChange(e.target.value)}
+            placeholder="Enter heading..."
+            className="text-2xl font-bold"
+            onClick={handleContentClick}
           />
         ) : (
-          <p className="text-sm text-gray-600">{block.content || 'Footer text'}</p>
+          <h2
+            className="text-2xl font-bold cursor-default"
+            onClick={handleContentClick}
+          >
+            {block.content || "Heading"}
+          </h2>
+        );
+
+      case "question":
+        return (
+          <div onClick={handleContentClick}>
+            {isEditing ? (
+              <>
+                <Input
+                  value={block.content}
+                  onChange={(e) => handleContentChange(e.target.value)}
+                  placeholder="Enter question..."
+                  className="text-lg font-medium mb-3"
+                />
+                {renderQuestionPreview()}
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-medium cursor-default">
+                  {block.content || "Question"}
+                </h3>
+                {renderQuestionView()}
+              </>
+            )}
+          </div>
+        );
+
+      case "button":
+        return isEditing ? (
+          <div className="space-y-3">
+            <Input
+              value={block.content}
+              onChange={(e) => handleContentChange(e.target.value)}
+              placeholder="Button text..."
+              className="text-base"
+            />
+            <Button
+              variant="primary"
+              className="w-full"
+              onClick={handleContentClick}
+            >
+              {block.content || "Button Preview"}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            className="w-full"
+            onClick={handleContentClick}
+          >
+            {block.content || "Next"}
+          </Button>
+        );
+
+      case "footer":
+        return isEditing ? (
+          <Input
+            value={block.content}
+            onChange={(e) => handleContentChange(e.target.value)}
+            placeholder="Footer text..."
+            className="text-sm text-gray-600"
+            onClick={handleContentClick}
+          />
+        ) : (
+          <p
+            className="text-sm text-gray-600 cursor-default"
+            onClick={handleContentClick}
+          >
+            {block.content || "Footer text"}
+          </p>
         );
 
       default:
@@ -89,7 +252,7 @@ export function BlockRenderer({ block, isSelected, onUpdate }: BlockRendererProp
   };
 
   return (
-    <div className="cursor-move">
+    <div className={isEditing ? "cursor-default" : "cursor-move"}>
       {renderContent()}
     </div>
   );

@@ -1,26 +1,41 @@
+import { useState, useEffect } from 'react';
 import { Quiz } from '@/types/quiz';
+import { Button } from '@/components/shared/Button';
+import { Input } from '@/components/shared/Input';
 
 interface EditorHeaderProps {
   quiz: Quiz;
   onUpdateQuiz: (updates: Partial<Quiz>) => void;
   onPublish: () => void;
   onSave: () => void;
+  onCancel: () => void;
 }
 
-export function EditorHeader({ quiz, onUpdateQuiz, onPublish, onSave }: EditorHeaderProps) {
+export function EditorHeader({ quiz, onUpdateQuiz, onPublish, onSave, onCancel }: EditorHeaderProps) {
+  const [localTitle, setLocalTitle] = useState(quiz.title);
+
+  useEffect(() => {
+    setLocalTitle(quiz.title);
+  }, [quiz.title]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setLocalTitle(newTitle);
+    onUpdateQuiz({ title: newTitle });
+  };
+
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-1">
-          <input
-            type="text"
-            value={quiz.title}
-            onChange={(e) => onUpdateQuiz({ title: e.target.value })}
-            className="text-2xl font-bold border-none outline-none bg-transparent w-full max-w-md"
+    <header className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Input
+            value={localTitle}
+            onChange={handleTitleChange}
+            className="text-lg sm:text-2xl font-bold flex-1 min-w-0"
             placeholder="Quiz Title"
           />
           
-          <span className={`px-2 py-1 text-xs rounded-full ${
+          <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
             quiz.published 
               ? 'bg-green-100 text-green-800' 
               : 'bg-yellow-100 text-yellow-800'
@@ -29,28 +44,36 @@ export function EditorHeader({ quiz, onUpdateQuiz, onPublish, onSave }: EditorHe
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">
-            Last updated: {new Date(quiz.updatedAt).toLocaleDateString()}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs sm:text-sm text-gray-500 hidden sm:block">
+            Updated: {new Date(quiz.updatedAt).toLocaleDateString()}
           </span>
           
-          <button
-            onClick={onSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            Save
-          </button>
-          
-          <button
-            onClick={onPublish}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              quiz.published
-                ? 'bg-gray-500 text-white hover:bg-gray-600'
-                : 'bg-green-500 text-white hover:bg-green-600'
-            }`}
-          >
-            {quiz.published ? 'Unpublish' : 'Publish'}
-          </button>
+          <div className="flex gap-2">
+            <Button
+              onClick={onCancel}
+              variant="secondary"
+              className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
+            >
+              Cancel
+            </Button>
+            
+            <Button
+              onClick={onSave}
+              variant="primary"
+              className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
+            >
+              Save
+            </Button>
+            
+            <Button
+              onClick={onPublish}
+              variant={quiz.published ? "secondary" : "primary"}
+              className="text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2"
+            >
+              {quiz.published ? 'Unpublish' : 'Publish'}
+            </Button>
+          </div>
         </div>
       </div>
     </header>

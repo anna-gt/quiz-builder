@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Quiz } from '@/types/quiz';
+import { Button } from './shared/Button';
 
 interface QuizListProps {
   quizzes: Quiz[];
@@ -21,12 +22,12 @@ export function QuizList({ quizzes, onCreateQuiz, onDeleteQuiz, loading }: QuizL
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">My Quizzes</h1>
-        <button
+        <Button
           onClick={onCreateQuiz}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          className="px-4 py-2"
         >
           Create Quiz
-        </button>
+        </Button>
       </div>
 
       {quizzes.length === 0 ? (
@@ -34,12 +35,12 @@ export function QuizList({ quizzes, onCreateQuiz, onDeleteQuiz, loading }: QuizL
           <div className="text-6xl mb-4">📝</div>
           <h2 className="text-2xl font-semibold mb-2">No quizzes yet</h2>
           <p className="text-gray-600 mb-4">Create your first quiz to get started</p>
-          <button
+          <Button
             onClick={onCreateQuiz}
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-6 py-3"
           >
             Create Your First Quiz
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">

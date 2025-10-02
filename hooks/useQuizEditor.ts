@@ -1,5 +1,5 @@
-import { QuizBlock } from '@/types/quiz';
-import { useState, useCallback } from 'react';
+import { QuizBlock } from "@/types/quiz";
+import { useState, useCallback } from "react";
 
 export const useQuizEditor = (initialBlocks: QuizBlock[] = []) => {
   const [state, setState] = useState({
@@ -7,48 +7,72 @@ export const useQuizEditor = (initialBlocks: QuizBlock[] = []) => {
     selectedBlockId: null as string | null,
   });
 
-  const setBlocks = useCallback((newBlocks: QuizBlock[]) => {
-    setState(prev => ({
+  const handleSetBlocks = useCallback((newBlocks: QuizBlock[]) => {
+    setState((prev) => ({
       ...prev,
       blocks: newBlocks,
     }));
   }, []);
 
-  const addBlock = useCallback((type: QuizBlock['type'], index?: number) => {
-    const newBlock: QuizBlock = {
-      id: crypto.randomUUID(),
-      type,
-      content: '',
-      properties: type === 'question' ? { questionType: 'single', options: [''] } : undefined,
-    };
+  const handleAddBlock = useCallback(
+    (type: QuizBlock["type"], index?: number) => {
+      const baseBlock: Omit<QuizBlock, "id"> = {
+        type,
+        content: "",
+      };
 
-    setState(prev => {
-      const newBlocks = [...prev.blocks];
-      const insertIndex = index !== undefined ? index : newBlocks.length;
-      newBlocks.splice(insertIndex, 0, newBlock);
-      return { ...prev, blocks: newBlocks, selectedBlockId: newBlock.id };
-    });
-  }, []);
+      if (type === "question") {
+        baseBlock.properties = {
+          questionType: "single",
+          options: ["Option 1"],
+        };
+      }
 
-  const updateBlock = useCallback((blockId: string, updates: Partial<QuizBlock>) => {
-    setState(prev => ({
+      const newBlock: QuizBlock = {
+        id: crypto.randomUUID(),
+        ...baseBlock,
+      };
+
+      setState((prev) => {
+        const newBlocks = [...prev.blocks];
+        const insertIndex = index !== undefined ? index : newBlocks.length;
+        newBlocks.splice(insertIndex, 0, newBlock);
+        return { ...prev, blocks: newBlocks, selectedBlockId: newBlock.id };
+      });
+    },
+    []
+  );
+
+  const handleInsertBlock = useCallback(
+    (type: QuizBlock["type"], index: number) => {
+      handleAddBlock(type, index);
+    },
+    [handleAddBlock]
+  );
+
+  const handleUpdateBlock = useCallback(
+    (blockId: string, updates: Partial<QuizBlock>) => {
+      setState((prev) => ({
+        ...prev,
+        blocks: prev.blocks.map((block) =>
+          block.id === blockId ? { ...block, ...updates } : block
+        ),
+      }));
+    },
+    []
+  );
+
+  const handleDeleteBlock = useCallback((blockId: string) => {
+    setState((prev) => ({
       ...prev,
-      blocks: prev.blocks.map(block =>
-        block.id === blockId ? { ...block, ...updates } : block
-      ),
+      blocks: prev.blocks.filter((block) => block.id !== blockId),
+      selectedBlockId:
+        prev.selectedBlockId === blockId ? null : prev.selectedBlockId,
     }));
   }, []);
 
-  const deleteBlock = useCallback((blockId: string) => {
-    setState(prev => ({
-      ...prev,
-      blocks: prev.blocks.filter(block => block.id !== blockId),
-      selectedBlockId: prev.selectedBlockId === blockId ? null : prev.selectedBlockId,
-    }));
-  }, []);
-
-  const moveBlock = useCallback((fromIndex: number, toIndex: number) => {
-    setState(prev => {
+  const handleMoveBlock = useCallback((fromIndex: number, toIndex: number) => {
+    setState((prev) => {
       const newBlocks = [...prev.blocks];
       const [movedBlock] = newBlocks.splice(fromIndex, 1);
       newBlocks.splice(toIndex, 0, movedBlock);
@@ -56,18 +80,19 @@ export const useQuizEditor = (initialBlocks: QuizBlock[] = []) => {
     });
   }, []);
 
-  const selectBlock = useCallback((blockId: string | null) => {
-    setState(prev => ({ ...prev, selectedBlockId: blockId }));
+  const handleSelectBlock = useCallback((blockId: string | null) => {
+    setState((prev) => ({ ...prev, selectedBlockId: blockId }));
   }, []);
 
   return {
     blocks: state.blocks,
     selectedBlockId: state.selectedBlockId,
-    setBlocks,
-    addBlock,
-    updateBlock,
-    deleteBlock,
-    moveBlock,
-    selectBlock,
+    onAddBlock: handleAddBlock,
+    onInsertBlock: handleInsertBlock,
+    onUpdateBlock: handleUpdateBlock,
+    onDeleteBlock: handleDeleteBlock,
+    onMoveBlock: handleMoveBlock,
+    onSelectBlock: handleSelectBlock,
+    onSetBlocks: handleSetBlocks,
   };
 };
