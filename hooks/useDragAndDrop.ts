@@ -5,7 +5,12 @@ export function useDragAndDrop() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isSmallScreen = window.innerWidth < 854;
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      
+      const isMobileView = isSmallScreen || (isTouchDevice && window.innerWidth < 854);
+      
+      setIsMobile(isMobileView);
     };
 
     checkMobile();

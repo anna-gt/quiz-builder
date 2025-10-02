@@ -35,13 +35,15 @@ export function EditorHeader({ quiz, onUpdateQuiz, onPublish, onSave, onCancel }
             placeholder="Quiz Title"
           />
           
-          <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
-            quiz.published 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-yellow-100 text-yellow-800'
-          }`}>
-            {quiz.published ? 'Published' : 'Draft'}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${
+              quiz.published 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {quiz.published ? 'Published' : 'Draft'}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">

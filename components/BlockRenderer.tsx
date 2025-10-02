@@ -14,9 +14,8 @@ export function BlockRenderer({
   onUpdate,
 }: BlockRendererProps) {
   const handleContentClick = (e: React.MouseEvent) => {
-    if (!isEditing && window.innerWidth >= 768) {
+    if (!isEditing && window.innerWidth >= 854) {
       e.preventDefault();
-      e.stopPropagation();
     }
   };
 

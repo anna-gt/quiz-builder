@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { useQuizEditor } from "@/hooks/useQuizEditor";
 import { useConfirmation } from "@/hooks/useConfirmation";
+import { useQuizValidation } from "@/hooks/useQuizValidation";
 import { BlockPalette } from "./BlockPalette";
 import { Canvas } from "./Canvas";
 import { PropertiesPanel } from "./PropertiesPanel";
 import { EditorHeader } from "./EditorHeader";
 import { ConfirmationDialog } from "@/components/shared/ConfirmationDialog";
+import { ValidationError } from "@/components/shared/ValidationError";
 import { Quiz, QuizBlock } from "@/types/quiz";
 
 interface QuizEditorProps {
@@ -27,6 +29,13 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
     blocks: quiz.blocks,
     published: quiz.published,
   });
+  const [validationError, setValidationError] = useState<{
+    show: boolean;
+    errors: string[];
+  }>({
+    show: false,
+    errors: [],
+  });
 
   const {
     confirmationState,
@@ -34,6 +43,8 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
     hideConfirmation,
     handleConfirm,
   } = useConfirmation();
+
+  const { validateQuiz } = useQuizValidation();
 
   const {
     blocks,
@@ -100,6 +111,16 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
   };
 
   const handlePublish = () => {
+    const validation = validateQuiz({ ...quiz, title: pendingTitle }, blocks);
+
+    if (!validation.isValid) {
+      setValidationError({
+        show: true,
+        errors: validation.errors,
+      });
+      return;
+    }
+
     const action = quiz.published ? "unpublish" : "publish";
     const actionText = quiz.published ? "Unpublish" : "Publish";
 
@@ -155,6 +176,10 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
     );
   };
 
+  const handleCloseValidationError = () => {
+    setValidationError({ show: false, errors: [] });
+  };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="flex flex-col h-screen bg-white">
@@ -166,8 +191,8 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
           onCancel={handleCancel}
         />
 
-        <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-          <div className="md:w-64 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200">
+        <div className="flex flex-1 overflow-hidden flex-col min-[854px]:flex-row">
+          <div className="min-[854px]:w-64 bg-gray-50 border-b min-[854px]:border-b-0 min-[854px]:border-r border-gray-200">
             <BlockPalette onAddBlock={onAddBlock} />
           </div>
 
@@ -180,7 +205,7 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
             />
           </div>
 
-          <div className="md:w-80 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200">
+          <div className="min-[854px]:w-80 bg-gray-50 border-t min-[854px]:border-t-0 min-[854px]:border-l border-gray-200">
             <PropertiesPanel
               selectedBlock={selectedBlock}
               onUpdateBlock={(updates) => {
@@ -199,6 +224,12 @@ export function QuizEditor({ quiz, onSave, onPublish }: QuizEditorProps) {
         message={confirmationState.message}
         onConfirm={handleConfirm}
         onCancel={hideConfirmation}
+      />
+
+      <ValidationError
+        errors={validationError.errors}
+        onClose={handleCloseValidationError}
+        autoHide={true}
       />
     </DragDropContext>
   );
